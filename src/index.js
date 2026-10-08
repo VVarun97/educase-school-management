@@ -54,6 +54,7 @@ function sanitizeUrl(raw) {
 // Diagnostic check to see which environment variables are detected
 app.get('/api/status', async (req, res) => {
   const envInfo = {
+    activeTarget: sanitizeUrl(db.activeUri),
     DATABASE_URL: sanitizeUrl(process.env.DATABASE_URL),
     MYSQL_URL: sanitizeUrl(process.env.MYSQL_URL),
     MYSQL_PUBLIC_URL: sanitizeUrl(process.env.MYSQL_PUBLIC_URL),

@@ -1,17 +1,21 @@
 const mysql = require('mysql2/promise');
 require('dotenv').config();
 
-// Filter all available database connection strings
-const allUris = [
-  process.env.MYSQL_PUBLIC_URL,
-  process.env.DATABASE_PUBLIC_URL,
-  process.env.DATABASE_URL,
-  process.env.MYSQL_URL,
-  process.env.MYSQL_PRIVATE_URL
-].filter(Boolean);
+// Base connection URI
+const baseUri = process.env.DATABASE_URL || process.env.MYSQL_URL || process.env.MYSQL_PRIVATE_URL;
 
-// Prefer public URL (non-railway.internal) to avoid ENOTFOUND DNS failures
-let connectionUri = allUris.find(u => !u.includes('railway.internal')) || allUris[0];
+// Public TCP proxy (e.g. "trolley.proxy.rlwy.net:48102" or full "mysql://...")
+const proxyHost = process.env.MYSQL_PUBLIC_URL || process.env.DATABASE_PUBLIC_URL;
+
+let connectionUri;
+if (proxyHost && proxyHost.startsWith('mysql://')) {
+  connectionUri = proxyHost;
+} else if (baseUri && proxyHost && proxyHost.includes('.proxy.rlwy.net')) {
+  // Replace internal railway host with public proxy domain and port
+  connectionUri = baseUri.replace(/@([^/:]+)(:\d+)?\//, `@${proxyHost.trim()}/`);
+} else {
+  connectionUri = baseUri;
+}
 
 let pool;
 if (connectionUri) {
@@ -71,3 +75,4 @@ async function initDatabase() {
 initDatabase();
 
 module.exports = pool;
+module.exports.activeUri = connectionUri;
