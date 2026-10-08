@@ -45,7 +45,7 @@ exports.addSchool = async (req, res) => {
     });
   } catch (error) {
     console.error('Error adding school:', error);
-    return res.status(500).json({ error: 'Internal server error' });
+    return res.status(500).json({ error: 'Internal server error', details: error.message, code: error.code });
   }
 };
 
@@ -86,6 +86,6 @@ exports.listSchools = async (req, res) => {
     });
   } catch (error) {
     console.error('Error listing schools:', error);
-    return res.status(500).json({ error: 'Internal server error' });
+    return res.status(500).json({ error: 'Internal server error', details: error.message, code: error.code });
   }
 };

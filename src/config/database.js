@@ -1,26 +1,37 @@
 const mysql = require('mysql2/promise');
 require('dotenv').config();
 
+const connectionUri =
+  process.env.DATABASE_URL ||
+  process.env.MYSQL_URL ||
+  process.env.MYSQL_PRIVATE_URL ||
+  process.env.MYSQL_PUBLIC_URL;
+
 let pool;
-if (process.env.DATABASE_URL || process.env.MYSQL_URL) {
-  const uri = process.env.DATABASE_URL || process.env.MYSQL_URL;
+if (connectionUri) {
   // Only enforce SSL if explicitly requested or specified in connection string
-  const useSSL = process.env.DB_SSL === 'true' || uri.includes('ssl=') || uri.includes('sslmode=');
+  const useSSL = process.env.DB_SSL === 'true' || connectionUri.includes('ssl=') || connectionUri.includes('sslmode=');
 
   pool = mysql.createPool({
-    uri,
+    uri: connectionUri,
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,
     ssl: useSSL ? { rejectUnauthorized: false } : undefined
   });
 } else {
+  const host = process.env.DB_HOST || process.env.MYSQLHOST || 'localhost';
+  const port = parseInt(process.env.DB_PORT || process.env.MYSQLPORT, 10) || 3306;
+  const user = process.env.DB_USER || process.env.MYSQLUSER || 'root';
+  const password = process.env.DB_PASSWORD || process.env.MYSQLPASSWORD || '';
+  const database = process.env.DB_NAME || process.env.MYSQLDATABASE || 'school_management';
+
   pool = mysql.createPool({
-    host: process.env.DB_HOST || 'localhost',
-    port: parseInt(process.env.DB_PORT, 10) || 3306,
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || '',
-    database: process.env.DB_NAME || 'school_management',
+    host,
+    port,
+    user,
+    password,
+    database,
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,
