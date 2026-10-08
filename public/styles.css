@@ -1002,6 +1002,10 @@ code, .mono {
   font-family: var(--font-main) !important;
 }
 
+body.theme-dark #map .leaflet-tile-pane {
+  filter: brightness(0.65) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.75);
+}
+
 /* Custom Floating Controls */
 .map-overlay-controls {
   position: absolute;

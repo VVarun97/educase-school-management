@@ -227,6 +227,14 @@ function initMap() {
 
   // Click handler on map
   map.on('click', handleMapClick);
+
+  // Fix Leaflet container size after layout renders
+  setTimeout(() => {
+    if (map) map.invalidateSize();
+  }, 300);
+  window.addEventListener('resize', () => {
+    if (map) map.invalidateSize();
+  });
 }
 
 function updateMapTileLayer() {
@@ -234,15 +242,16 @@ function updateMapTileLayer() {
     map.removeLayer(tileLayer);
   }
 
-  const isDark = state.mapTheme === 'dark';
-  const tileUrl = isDark
-    ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
-    : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+  // OpenStreetMap standard tile server (100% Free, NO API KEY required)
+  const osmUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 
-  tileLayer = L.tileLayer(tileUrl, {
+  tileLayer = L.tileLayer(osmUrl, {
     maxZoom: 19,
-    subdomains: 'abcd'
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors'
   }).addTo(map);
+
+  // Auto-invalidate size to ensure tiles render immediately
+  map.invalidateSize();
 }
 
 // Custom Leaflet Icons
