@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="EduCase - Intelligent Geospatial School Management & Proximity Discovery Platform. Add schools and find institutions sorted by distance.">
+  <title>EduCase Pro | School Management & Proximity Engine</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Leaflet CSS for Map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="theme-dark">
+  <!-- Application Header -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand-group">
+        <div class="brand-logo">
+          <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+            <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <div class="brand-title-row">
+            <h1 class="brand-title">EduCase<span class="brand-badge">PRO</span></h1>
+            <span class="version-chip">v1.0</span>
+          </div>
+          <p class="brand-subtitle">Geospatial School Discovery & Management</p>
+        </div>
+      </div>
+
+      <!-- Center Status: Backend Connection Indicator -->
+      <div class="status-center">
+        <div class="connection-badge" id="connectionBadge" title="Click to view API status & settings">
+          <span class="status-dot pulsing" id="statusDot"></span>
+          <span class="status-text" id="statusText">Checking Backend...</span>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="header-actions">
+        <button class="btn btn-secondary" id="openSettingsBtn" title="API Configuration & Postman Specs">
+          <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+          <span>API Config</span>
+        </button>
+
+        <button class="btn btn-secondary icon-only" id="themeToggleBtn" title="Toggle Light / Dark Theme">
+          <svg class="sun-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+        </button>
+
+        <button class="btn btn-primary" id="openAddModalBtn">
+          <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          <span>Add School</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Metrics / Quick Stats Bar -->
+  <section class="stats-ribbon">
+    <div class="stats-container">
+      <div class="stat-card">
+        <div class="stat-icon-wrapper cyan">
+          <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+        </div>
+        <div class="stat-meta">
+          <span class="stat-label">Total Schools</span>
+          <span class="stat-val" id="statTotalSchools">0</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon-wrapper emerald">
+          <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+          </svg>
+        </div>
+        <div class="stat-meta">
+          <span class="stat-label">Nearest School</span>
+          <span class="stat-val" id="statNearestSchool">--</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon-wrapper indigo">
+          <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="2" y1="12" x2="22" y2="12"></line>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+          </svg>
+        </div>
+        <div class="stat-meta">
+          <span class="stat-label">Average Distance</span>
+          <span class="stat-val" id="statAvgDistance">-- km</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon-wrapper amber">
+          <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none">
+            <path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"></path>
+            <circle cx="12" cy="10" r="3"></circle>
+          </svg>
+        </div>
+        <div class="stat-meta">
+          <span class="stat-label">Origin Location</span>
+          <span class="stat-val mono" id="statOriginCoords">28.5355, 77.3910</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Mobile View Switcher (List vs Map) -->
+  <div class="mobile-view-tabs">
+    <button class="mobile-tab-btn active" id="mobileTabList">
+      <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+        <line x1="8" y1="6" x2="21" y2="6"></line>
+        <line x1="8" y1="12" x2="21" y2="12"></line>
+        <line x1="8" y1="18" x2="21" y2="18"></line>
+        <line x1="3" y1="6" x2="3.01" y2="6"></line>
+        <line x1="3" y1="12" x2="3.01" y2="12"></line>
+        <line x1="3" y1="18" x2="3.01" y2="18"></line>
+      </svg>
+      Schools List (<span id="mobileCountSpan">0</span>)
+    </button>
+    <button class="mobile-tab-btn" id="mobileTabMap">
+      <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+        <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+        <line x1="8" y1="2" x2="8" y2="18"></line>
+        <line x1="16" y1="6" x2="16" y2="22"></line>
+      </svg>
+      Interactive Map
+    </button>
+  </div>
+
+  <!-- Main Split Layout -->
+  <main class="app-main">
+    <!-- Left Panel: Search, Location Origin & School Cards -->
+    <section class="sidebar-panel" id="sidebarPanel">
+      
+      <!-- Geolocation Control Card -->
+      <div class="panel-card origin-card">
+        <div class="card-header-row">
+          <div class="title-with-icon">
+            <span class="pulse-indicator-small"></span>
+            <h2 class="panel-heading">Your Location (Origin)</h2>
+          </div>
+          <button class="btn btn-xs btn-outline" id="autoDetectGpsBtn" title="Detect your actual coordinates via browser GPS">
+            <svg viewBox="0 0 24 24" width="13" height="13" stroke="currentColor" stroke-width="2.2" fill="none">
+              <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
+            </svg>
+            Auto Detect
+          </button>
+        </div>
+
+        <p class="panel-desc">All distances in <code class="endpoint-code">GET /listSchools</code> are calculated relative to these coordinates.</p>
+
+        <!-- Coordinates Inputs -->
+        <div class="coords-row">
+          <div class="input-field">
+            <label for="originLat">Latitude</label>
+            <input type="number" id="originLat" step="any" min="-90" max="90" value="28.5355" placeholder="e.g. 28.5355">
+          </div>
+          <div class="input-field">
+            <label for="originLng">Longitude</label>
+            <input type="number" id="originLng" step="any" min="-180" max="180" value="77.3910" placeholder="e.g. 77.3910">
+          </div>
+          <button class="btn btn-primary btn-apply" id="applyOriginBtn" title="Apply coordinates and recalculate distances">
+            Apply
+          </button>
+        </div>
+
+        <!-- Location Preset Chips -->
+        <div class="preset-locations-container">
+          <span class="preset-label">Quick Presets:</span>
+          <div class="preset-chips" id="presetChips">
+            <button class="preset-chip active" data-lat="28.5355" data-lng="77.3910" data-label="Noida / Delhi NCR">Delhi NCR</button>
+            <button class="preset-chip" data-lat="28.6139" data-lng="77.2090" data-label="Central Delhi">CP Delhi</button>
+            <button class="preset-chip" data-lat="19.0760" data-lng="72.8777" data-label="Mumbai">Mumbai</button>
+            <button class="preset-chip" data-lat="12.9716" data-lng="77.5946" data-label="Bengaluru">Bengaluru</button>
+            <button class="preset-chip" data-lat="17.3850" data-lng="78.4867" data-label="Hyderabad">Hyderabad</button>
+          </div>
+        </div>
+
+        <!-- Pick on Map Indicator -->
+        <div class="pick-map-hint">
+          <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none">
+            <path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"></path>
+            <circle cx="12" cy="10" r="3"></circle>
+          </svg>
+          <span>Tip: Click anywhere on the map to set your origin location instantly.</span>
+        </div>
+      </div>
+
+      <!-- Search & Filtering Controls -->
+      <div class="panel-card filters-card">
+        <div class="search-box">
+          <svg class="search-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="searchInput" placeholder="Search schools by name or address...">
+          <button class="clear-search-btn hidden" id="clearSearchBtn" aria-label="Clear search">×</button>
+        </div>
+
+        <div class="filter-controls-row">
+          <!-- Max Distance Slider -->
+          <div class="range-control">
+            <div class="range-header">
+              <span class="filter-subheading">Max Radius:</span>
+              <span class="range-value" id="radiusValueText">All (No limit)</span>
+            </div>
+            <input type="range" id="radiusRange" min="1" max="100" value="100" step="1">
+          </div>
+
+          <!-- Sort Order -->
+          <div class="sort-control">
+            <label for="sortSelect" class="filter-subheading">Sort By:</label>
+            <select id="sortSelect">
+              <option value="distance-asc">Nearest First (Default)</option>
+              <option value="distance-desc">Furthest First</option>
+              <option value="name-asc">Name (A → Z)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Schools List Header -->
+      <div class="list-meta-bar">
+        <div class="meta-left">
+          <h3 class="list-title">Nearby Schools</h3>
+          <span class="count-tag" id="resultsCountTag">0 found</span>
+        </div>
+        <div class="meta-actions">
+          <button class="view-btn active" id="viewCardsBtn" title="Card View">
+            <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none">
+              <rect x="3" y="3" width="7" height="7"></rect>
+              <rect x="14" y="3" width="7" height="7"></rect>
+              <rect x="14" y="14" width="7" height="7"></rect>
+              <rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
+          </button>
+          <button class="view-btn" id="viewTableBtn" title="Compact Table View">
+            <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none">
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Container for dynamic School Cards or Table -->
+      <div class="schools-scroll-area" id="schoolsScrollArea">
+        <div class="schools-container cards-mode" id="schoolsContainer">
+          <!-- Rendered via app.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Right Panel: Interactive Map & Overlays -->
+    <section class="map-panel" id="mapPanel">
+      <div id="map" class="map-canvas" role="region" aria-label="School Map"></div>
+
+      <!-- Map Floating Controls -->
+      <div class="map-overlay-controls">
+        <button class="map-float-btn" id="mapCenterOriginBtn" title="Center map on your origin location">
+          <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none">
+            <circle cx="12" cy="12" r="10"></circle>
+            <circle cx="12" cy="12" r="3"></circle>
+            <line x1="12" y1="2" x2="12" y2="5"></line>
+            <line x1="12" y1="19" x2="12" y2="22"></line>
+            <line x1="2" y1="12" x2="5" y2="12"></line>
+            <line x1="19" y1="12" x2="22" y2="12"></line>
+          </svg>
+          <span class="tooltip">My Location</span>
+        </button>
+
+        <button class="map-float-btn" id="mapFitBoundsBtn" title="Fit all schools in view">
+          <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none">
+            <polyline points="15 3 21 3 21 9"></polyline>
+            <polyline points="9 21 3 21 3 15"></polyline>
+            <line x1="21" y1="3" x2="14" y2="10"></line>
+            <line x1="3" y1="21" x2="10" y2="14"></line>
+          </svg>
+          <span class="tooltip">Fit All</span>
+        </button>
+
+        <button class="map-float-btn" id="mapTileToggleBtn" title="Toggle Map Style (Dark / Light Street)">
+          <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none">
+            <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+            <polyline points="2 17 12 22 22 17"></polyline>
+            <polyline points="2 12 12 17 22 12"></polyline>
+          </svg>
+          <span class="tooltip">Map Layer</span>
+        </button>
+      </div>
+
+      <!-- Floating Legend / Selected School Info Banner -->
+      <div class="map-info-banner" id="mapInfoBanner">
+        <div class="banner-left">
+          <span class="banner-badge" id="bannerBadge">Direct Proximity</span>
+          <span class="banner-text" id="bannerText">Click any school card or map marker to view detailed distance line</span>
+        </div>
+        <button class="banner-close-btn" id="bannerCloseBtn">×</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- MODAL: Add New School (POST /addSchool) -->
+  <div class="modal-backdrop" id="addSchoolModal" role="dialog" aria-modal="true" aria-labelledby="addModalTitle">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-badge-icon">
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none">
+              <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+              <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+            </svg>
+          </div>
+          <div>
+            <h2 class="modal-title" id="addModalTitle">Register New School</h2>
+            <p class="modal-subtitle">Directly communicates with <code class="endpoint-code">POST /addSchool</code></p>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="closeAddModalBtn" aria-label="Close modal">×</button>
+      </div>
+
+      <form id="addSchoolForm" novalidate>
+        <div class="modal-body">
+          <!-- School Name -->
+          <div class="form-group">
+            <label for="newSchoolName">
+              School Name <span class="req">*</span>
+            </label>
+            <input type="text" id="newSchoolName" required placeholder="e.g. Delhi Public School, R.K. Puram" autocomplete="organization">
+            <span class="form-hint">Must be a valid, non-empty institution name.</span>
+            <span class="field-error" id="nameError"></span>
+          </div>
+
+          <!-- School Address -->
+          <div class="form-group">
+            <label for="newSchoolAddress">
+              School Address <span class="req">*</span>
+            </label>
+            <input type="text" id="newSchoolAddress" required placeholder="e.g. Sector 12, RK Puram, New Delhi - 110022" autocomplete="street-address">
+            <span class="form-hint">Physical street address or campus location.</span>
+            <span class="field-error" id="addressError"></span>
+          </div>
+
+          <!-- Coordinates Dual Fields -->
+          <div class="form-row">
+            <div class="form-group col-half">
+              <label for="newSchoolLat">
+                Latitude <span class="req">*</span> <small class="range-note">(-90 to 90)</small>
+              </label>
+              <input type="number" id="newSchoolLat" step="any" min="-90" max="90" required placeholder="e.g. 28.5683">
+              <span class="field-error" id="latError"></span>
+            </div>
+
+            <div class="form-group col-half">
+              <label for="newSchoolLng">
+                Longitude <span class="req">*</span> <small class="range-note">(-180 to 180)</small>
+              </label>
+              <input type="number" id="newSchoolLng" step="any" min="-180" max="180" required placeholder="e.g. 77.1717">
+              <span class="field-error" id="lngError"></span>
+            </div>
+          </div>
+
+          <!-- Interactive Geolocation Utilities for Add School -->
+          <div class="form-geo-tools">
+            <span class="geo-tools-title">Coordinate Helpers:</span>
+            <div class="geo-tools-buttons">
+              <button type="button" class="btn btn-xs btn-outline" id="pickOnMapModalBtn">
+                <svg viewBox="0 0 24 24" width="13" height="13" stroke="currentColor" stroke-width="2" fill="none">
+                  <path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"></path>
+                  <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+                Pick On Map
+              </button>
+              <button type="button" class="btn btn-xs btn-outline" id="useOriginCoordsModalBtn">
+                <svg viewBox="0 0 24 24" width="13" height="13" stroke="currentColor" stroke-width="2" fill="none">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                Use Origin Coords
+              </button>
+            </div>
+          </div>
+
+          <!-- Fast Preset Samples for Testing -->
+          <div class="quick-samples">
+            <span class="samples-title">Quick Samples:</span>
+            <div class="samples-pills">
+              <button type="button" class="sample-pill" data-name="Modern School" data-addr="Barakhamba Road, Connaught Place, New Delhi" data-lat="28.6275" data-lng="77.2289">Modern School CP</button>
+              <button type="button" class="sample-pill" data-name="Sanskriti School" data-addr="Dr S Radhakrishnan Marg, Chanakyapuri, New Delhi" data-lat="28.5898" data-lng="77.1856">Sanskriti Chanakyapuri</button>
+              <button type="button" class="sample-pill" data-name="The Mother's International" data-addr="Sri Aurobindo Marg, Vijay Mandal Enclave, New Delhi" data-lat="28.5398" data-lng="77.2037">Mother's Int. School</button>
+            </div>
+          </div>
+
+          <div class="form-feedback hidden" id="addFormFeedback"></div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="cancelAddBtn">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="submitAddSchoolBtn">
+            <span class="btn-spinner hidden" id="addBtnSpinner"></span>
+            <span class="btn-text">Submit & Save School</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: API Config & Testing -->
+  <div class="modal-backdrop" id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="settingsModalTitle">
+    <div class="modal-card modal-lg">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-badge-icon">
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+          </div>
+          <div>
+            <h2 class="modal-title" id="settingsModalTitle">API Integration & Settings</h2>
+            <p class="modal-subtitle">Configure backend endpoints & inspect live Postman specifications</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="closeSettingsModalBtn" aria-label="Close modal">×</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Backend URL Configuration -->
+        <div class="settings-section">
+          <label for="backendUrlInput" class="section-label">Backend Base URL</label>
+          <div class="url-input-group">
+            <input type="text" id="backendUrlInput" value="http://localhost:3000" placeholder="e.g. http://localhost:3000">
+            <button class="btn btn-primary" id="testConnectionBtn">
+              <span id="testBtnText">Test & Connect</span>
+            </button>
+          </div>
+          <span class="form-hint">Points to your Express.js server running in <code>educase-main/src/index.js</code>.</span>
+          <div class="test-result-box" id="testResultBox"></div>
+        </div>
+
+        <!-- Mode Toggle: Live vs Mock Sandbox -->
+        <div class="settings-section mode-toggle-section">
+          <div class="mode-info">
+            <h4>Live Backend vs Interactive Demo Sandbox</h4>
+            <p>If your MySQL server is currently not configured, the app seamlessly runs in Demo Sandbox mode with client-side Haversine proximity calculations and local data persistence.</p>
+          </div>
+          <button class="btn btn-outline" id="toggleDemoModeBtn">Toggle Mode</button>
+        </div>
+
+        <!-- API Endpoints Spec Reference (matching Postman Collection) -->
+        <div class="settings-section">
+          <h4 class="section-label">Active API Endpoints</h4>
+          <div class="api-docs-list">
+            <div class="api-doc-item">
+              <div class="api-method-badge post">POST</div>
+              <div class="api-path">/addSchool</div>
+              <div class="api-desc">Payload: <code>{ name, address, latitude, longitude }</code></div>
+            </div>
+            <div class="api-doc-item">
+              <div class="api-method-badge get">GET</div>
+              <div class="api-path">/listSchools?latitude={lat}&longitude={lng}</div>
+              <div class="api-desc">Returns all schools sorted by Haversine distance ascending</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Data Tools -->
+        <div class="settings-section">
+          <h4 class="section-label">Data Management</h4>
+          <div class="data-tools-grid">
+            <button class="btn btn-secondary" id="exportJsonBtn">
+              <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              Export JSON
+            </button>
+            <button class="btn btn-secondary" id="exportCsvBtn">
+              <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+              Export CSV
+            </button>
+            <button class="btn btn-outline" id="loadDemoSeedsBtn">
+              <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none"><polyline points="1 4 1 10 7 10"></polyline><polyline points="23 20 23 14 17 14"></polyline><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path></svg>
+              Reload Sample Schools
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="closeSettingsModalFooterBtn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-stack" id="toastStack" aria-live="polite"></div>
+
+  <!-- Leaflet Map JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <!-- Main Application Logic -->
+  <script src="app.js"></script>
+</body>
+</html>

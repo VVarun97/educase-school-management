@@ -1,0 +1,141 @@
+{
+  "info": {
+    "_postman_id": "b3f3b9c6-2c9e-4e4f-b8c1-1e2f1e4a3b1a",
+    "name": "School Management API",
+    "description": "API collection for managing schools and calculating proximity.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Add School",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Delhi Public School\",\n  \"address\": \"Sector 12, RK Puram, New Delhi\",\n  \"latitude\": 28.5683,\n  \"longitude\": 77.1717\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/addSchool",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "addSchool"
+          ]
+        },
+        "description": "Adds a new school to the database."
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Delhi Public School\",\n  \"address\": \"Sector 12, RK Puram, New Delhi\",\n  \"latitude\": 28.5683,\n  \"longitude\": 77.1717\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/addSchool",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "addSchool"
+              ]
+            }
+          },
+          "status": "Created",
+          "code": 201,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n    \"message\": \"School added successfully\",\n    \"schoolId\": 1\n}"
+        }
+      ]
+    },
+    {
+      "name": "List Schools",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/listSchools?latitude=28.5355&longitude=77.3910",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "listSchools"
+          ],
+          "query": [
+            {
+              "key": "latitude",
+              "value": "28.5355"
+            },
+            {
+              "key": "longitude",
+              "value": "77.3910"
+            }
+          ]
+        },
+        "description": "Retrieves all schools sorted by proximity to the provided latitude and longitude."
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/listSchools?latitude=28.5355&longitude=77.3910",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "listSchools"
+              ],
+              "query": [
+                {
+                  "key": "latitude",
+                  "value": "28.5355"
+                },
+                {
+                  "key": "longitude",
+                  "value": "77.3910"
+                }
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n    \"message\": \"Schools retrieved successfully\",\n    \"count\": 1,\n    \"data\": [\n        {\n            \"id\": 1,\n            \"name\": \"Delhi Public School\",\n            \"address\": \"Sector 12, RK Puram, New Delhi\",\n            \"latitude\": 28.5683,\n            \"longitude\": 77.1717,\n            \"distance\": 21.652134\n        }\n    ]\n}"
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    }
+  ]
+}
