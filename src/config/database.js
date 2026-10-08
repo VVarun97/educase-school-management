@@ -1,18 +1,17 @@
 const mysql = require('mysql2/promise');
 require('dotenv').config();
 
-// Prefer public URL if available to bypass unreachable private railway.internal DNS
-let connectionUri = process.env.MYSQL_PUBLIC_URL;
-if (!connectionUri) {
-  const candidates = [
-    process.env.DATABASE_URL,
-    process.env.MYSQL_URL,
-    process.env.MYSQL_PRIVATE_URL
-  ].filter(Boolean);
+// Filter all available database connection strings
+const allUris = [
+  process.env.MYSQL_PUBLIC_URL,
+  process.env.DATABASE_PUBLIC_URL,
+  process.env.DATABASE_URL,
+  process.env.MYSQL_URL,
+  process.env.MYSQL_PRIVATE_URL
+].filter(Boolean);
 
-  // If candidate contains railway.internal and fails DNS, don't prefer it
-  connectionUri = candidates.find(u => !u.includes('railway.internal')) || candidates[0];
-}
+// Prefer public URL (non-railway.internal) to avoid ENOTFOUND DNS failures
+let connectionUri = allUris.find(u => !u.includes('railway.internal')) || allUris[0];
 
 let pool;
 if (connectionUri) {

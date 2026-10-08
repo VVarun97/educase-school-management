@@ -41,18 +41,26 @@ app.get('/health', async (req, res) => {
   }
 });
 
+function sanitizeUrl(raw) {
+  if (!raw) return null;
+  try {
+    const u = new URL(raw);
+    return `${u.protocol}//${u.username ? u.username + ':***@' : ''}${u.host}${u.pathname}`;
+  } catch (e) {
+    return 'unparseable';
+  }
+}
+
 // Diagnostic check to see which environment variables are detected
 app.get('/api/status', async (req, res) => {
   const envInfo = {
-    has_DATABASE_URL: Boolean(process.env.DATABASE_URL),
-    has_MYSQL_URL: Boolean(process.env.MYSQL_URL),
-    has_MYSQL_PRIVATE_URL: Boolean(process.env.MYSQL_PRIVATE_URL),
-    has_MYSQL_PUBLIC_URL: Boolean(process.env.MYSQL_PUBLIC_URL),
-    has_MYSQLHOST: Boolean(process.env.MYSQLHOST),
-    has_DB_HOST: Boolean(process.env.DB_HOST),
-    detected_host: process.env.DB_HOST || process.env.MYSQLHOST || 'localhost',
-    detected_port: process.env.DB_PORT || process.env.MYSQLPORT || 3306,
-    detected_db: process.env.DB_NAME || process.env.MYSQLDATABASE || 'school_management'
+    DATABASE_URL: sanitizeUrl(process.env.DATABASE_URL),
+    MYSQL_URL: sanitizeUrl(process.env.MYSQL_URL),
+    MYSQL_PUBLIC_URL: sanitizeUrl(process.env.MYSQL_PUBLIC_URL),
+    MYSQLHOST: process.env.MYSQLHOST || null,
+    MYSQLPORT: process.env.MYSQLPORT || null,
+    DB_HOST: process.env.DB_HOST || null,
+    DB_PORT: process.env.DB_PORT || null
   };
 
   try {
