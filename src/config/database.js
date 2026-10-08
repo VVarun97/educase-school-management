@@ -31,10 +31,11 @@ if (connectionUri) {
   });
 } else {
   const host = process.env.DB_HOST || process.env.MYSQLHOST || 'localhost';
-  const port = parseInt(process.env.DB_PORT || process.env.MYSQLPORT, 10) || 3306;
+  const isTiDB = host.includes('tidbcloud.com');
+  const port = parseInt(process.env.DB_PORT || process.env.MYSQLPORT, 10) || (isTiDB ? 4000 : 3306);
   const user = process.env.DB_USER || process.env.MYSQLUSER || 'root';
   const password = process.env.DB_PASSWORD || process.env.MYSQLPASSWORD || '';
-  const database = process.env.DB_NAME || process.env.MYSQLDATABASE || 'school_management';
+  const database = process.env.DB_NAME || process.env.MYSQLDATABASE || (isTiDB ? 'test' : 'school_management');
 
   pool = mysql.createPool({
     host,
@@ -45,30 +46,37 @@ if (connectionUri) {
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,
-    ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : undefined
+    ssl: (process.env.DB_SSL === 'true' || isTiDB) ? { rejectUnauthorized: false } : undefined
   });
 }
 
-// Verify connection and auto-create table if needed
+// Verify connection and verify schools table
 async function initDatabase() {
   try {
     const connection = await pool.getConnection();
     console.log('Successfully connected to the database.');
 
     try {
-      const createTableQuery = `
-        CREATE TABLE IF NOT EXISTS schools (
-          id INT AUTO_INCREMENT PRIMARY KEY,
-          name VARCHAR(255) NOT NULL,
-          address VARCHAR(255) NOT NULL,
-          latitude FLOAT NOT NULL,
-          longitude FLOAT NOT NULL
-        );
-      `;
-      await connection.query(createTableQuery);
+      // Check if table already exists to avoid unnecessary DDL / permission errors
+      await connection.query('SELECT 1 FROM schools LIMIT 1');
       console.log("Database table 'schools' is verified and ready.");
-    } catch (tableErr) {
-      console.warn("Table auto-migration notice (create table):", tableErr.message);
+    } catch (checkErr) {
+      // Only attempt table creation if table doesn't already exist
+      try {
+        const createTableQuery = `
+          CREATE TABLE IF NOT EXISTS schools (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            name VARCHAR(255) NOT NULL,
+            address VARCHAR(255) NOT NULL,
+            latitude FLOAT NOT NULL,
+            longitude FLOAT NOT NULL
+          );
+        `;
+        await connection.query(createTableQuery);
+        console.log("Database table 'schools' has been created.");
+      } catch (tableErr) {
+        console.warn("Table auto-migration notice (create table):", tableErr.message);
+      }
     }
     connection.release();
   } catch (err) {
