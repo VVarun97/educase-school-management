@@ -55,20 +55,24 @@ async function initDatabase() {
     const connection = await pool.getConnection();
     console.log('Successfully connected to the database.');
 
-    const createTableQuery = `
-      CREATE TABLE IF NOT EXISTS schools (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        name VARCHAR(255) NOT NULL,
-        address VARCHAR(255) NOT NULL,
-        latitude FLOAT NOT NULL,
-        longitude FLOAT NOT NULL
-      );
-    `;
-    await connection.query(createTableQuery);
-    console.log("Database table 'schools' is ready.");
+    try {
+      const createTableQuery = `
+        CREATE TABLE IF NOT EXISTS schools (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          name VARCHAR(255) NOT NULL,
+          address VARCHAR(255) NOT NULL,
+          latitude FLOAT NOT NULL,
+          longitude FLOAT NOT NULL
+        );
+      `;
+      await connection.query(createTableQuery);
+      console.log("Database table 'schools' is verified and ready.");
+    } catch (tableErr) {
+      console.warn("Table auto-migration notice (create table):", tableErr.message);
+    }
     connection.release();
   } catch (err) {
-    console.error('Database connection / initialization error:', err.message);
+    console.error('Database connection error:', err.message);
   }
 }
 
