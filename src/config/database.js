@@ -4,12 +4,15 @@ require('dotenv').config();
 let pool;
 if (process.env.DATABASE_URL || process.env.MYSQL_URL) {
   const uri = process.env.DATABASE_URL || process.env.MYSQL_URL;
+  // Only enforce SSL if explicitly requested or specified in connection string
+  const useSSL = process.env.DB_SSL === 'true' || uri.includes('ssl=') || uri.includes('sslmode=');
+
   pool = mysql.createPool({
     uri,
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,
-    ssl: process.env.DB_SSL === 'false' ? undefined : { rejectUnauthorized: false }
+    ssl: useSSL ? { rejectUnauthorized: false } : undefined
   });
 } else {
   pool = mysql.createPool({
@@ -25,14 +28,29 @@ if (process.env.DATABASE_URL || process.env.MYSQL_URL) {
   });
 }
 
-// Test connection
-pool.getConnection()
-  .then((connection) => {
+// Verify connection and auto-create table if needed
+async function initDatabase() {
+  try {
+    const connection = await pool.getConnection();
     console.log('Successfully connected to the database.');
+
+    const createTableQuery = `
+      CREATE TABLE IF NOT EXISTS schools (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        address VARCHAR(255) NOT NULL,
+        latitude FLOAT NOT NULL,
+        longitude FLOAT NOT NULL
+      );
+    `;
+    await connection.query(createTableQuery);
+    console.log("Database table 'schools' is ready.");
     connection.release();
-  })
-  .catch((err) => {
-    console.error('Error connecting to the database:', err.message);
-  });
+  } catch (err) {
+    console.error('Database connection / initialization error:', err.message);
+  }
+}
+
+initDatabase();
 
 module.exports = pool;
