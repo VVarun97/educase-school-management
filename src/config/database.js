@@ -17,6 +17,17 @@ if (proxyHost && proxyHost.startsWith('mysql://')) {
   connectionUri = baseUri;
 }
 
+// Auto-fix missing database name or accidental /sys in connection string
+if (connectionUri) {
+  try {
+    const parsed = new URL(connectionUri);
+    if (!parsed.pathname || parsed.pathname === '/' || parsed.pathname === '/sys') {
+      parsed.pathname = parsed.host.includes('tidbcloud.com') ? '/test' : '/school_management';
+      connectionUri = parsed.toString();
+    }
+  } catch (e) {}
+}
+
 let pool;
 if (connectionUri) {
   // Only enforce SSL if explicitly requested or specified in connection string
